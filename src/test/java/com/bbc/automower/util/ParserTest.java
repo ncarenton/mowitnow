@@ -4,38 +4,36 @@ import com.bbc.automower.domain.Lawn;
 import com.bbc.automower.domain.Mower;
 import com.bbc.automower.error.Error;
 import com.bbc.automower.error.Error.FileNotFound;
-import com.bbc.automower.error.Error.InvalidInt;
-import com.bbc.automower.error.Error.InvalidLength;
-import com.bbc.automower.error.Error.InvalidOrientation;
 import io.vavr.collection.Seq;
 import io.vavr.control.Validation;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
+import static com.bbc.automower.Constants.GOOD_FILE_PATH;
 import static com.bbc.automower.enumeration.Instruction.*;
 import static com.bbc.automower.enumeration.Orientation.EAST;
 import static com.bbc.automower.enumeration.Orientation.NORTH;
-import static io.vavr.API.LinkedSet;
-import static io.vavr.API.List;
+import static io.vavr.API.*;
 import static org.junit.Assert.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
+@RunWith(MockitoJUnitRunner.class)
 public class ParserTest {
-
-    //-------------------------------------------------------------------------    
-    // Variables
-    //-------------------------------------------------------------------------
-
-    public final static String GOOD_FILE_PATH = "automower.txt";
-    private final static String BAD_MOWER_FILE_PATH = "automower-bad-mower.txt";
-    private final static String BAD_MOWER_FILE_PATH_TOO_MANY_ELTS = "automower-bad-mower-too-many-elements.txt";
-    private final static String BAD_MOVE_FILE_PATH = "automower-bad-move.txt";
-    private final static String BAD_LAWN_FILE_PATH = "automower-bad-lawn.txt";
-
 
     //-------------------------------------------------------------------------
     // Initialization
     //-------------------------------------------------------------------------
 
-    private final Parser parser = new Parser();
+    @Mock
+    private Validator<Lawn> validator;
+
+    @InjectMocks
+    private Parser parser;
 
 
     //-------------------------------------------------------------------------    
@@ -65,12 +63,18 @@ public class ParserTest {
         // Given
         Lawn lawn = expectedLawn();
 
+        // When
+        when(validator.validate(any())).thenReturn(Valid(lawn));
+
         // Action
         Validation<Seq<Error>, Lawn> errorsOrAutomower = parser.parse("src/main/resources/META-INF/config/" + GOOD_FILE_PATH);
 
         // Then
         assertTrue(errorsOrAutomower.isValid());
         assertSame(lawn, errorsOrAutomower.get());
+
+        //Verify
+        verify(validator).validate(any());
     }
 
     @Test
@@ -78,77 +82,36 @@ public class ParserTest {
         // Given
         Lawn lawn = expectedLawn();
 
+        // When
+        when(validator.validate(any())).thenReturn(Valid(lawn));
+
         // Action
         Validation<Seq<Error>, Lawn> errorsOrAutomower = parser.parse(GOOD_FILE_PATH);
 
         // Then
         assertTrue(errorsOrAutomower.isValid());
         assertSame(lawn, errorsOrAutomower.get());
+
+        //Verify
+        verify(validator).validate(any());
     }
 
     @Test
-    public void should_be_invalid_when_file_with_too_many_elements_in_mower_line() {
+    public void should_be_invalid_when_validator_returns_invalid() {
+        //Given
+        Validation<Seq<Error>, Lawn> invalid = Invalid(Seq(Error.EmptyFile.of()));
+
+        // When
+        when(validator.validate(any())).thenReturn(invalid);
+
         // Action
-        Validation<Seq<Error>, Lawn> errorsOrAutomower = parser.parse(BAD_MOWER_FILE_PATH_TOO_MANY_ELTS);
+        Validation<Seq<Error>, Lawn> errorsOrAutomower = parser.parse(GOOD_FILE_PATH);
 
         // Then
-        assertTrue(errorsOrAutomower.isInvalid());
-        assertNotNull(errorsOrAutomower.getError());
-        assertEquals(errorsOrAutomower.getError().size(), 1);
-        assertEquals(errorsOrAutomower.getError().get(0), InvalidLength.of(2, 4, 3));
-    }
+        assertSame(invalid, errorsOrAutomower);
 
-    @Test
-    public void should_be_invalid_when_file_with_bad_mower_line() {
-        // Action
-        Validation<Seq<Error>, Lawn> errorsOrAutomower = parser.parse(BAD_MOWER_FILE_PATH);
-
-        // Then
-        assertTrue(errorsOrAutomower.isInvalid());
-        assertNotNull(errorsOrAutomower.getError());
-        assertEquals(errorsOrAutomower.getError().size(), 3);
-        assertEquals(errorsOrAutomower.getError().get(0), InvalidInt.of(2, "X"));
-        assertEquals(errorsOrAutomower.getError().get(1), InvalidInt.of(2, "Y"));
-        assertEquals(errorsOrAutomower.getError().get(2), InvalidOrientation.of(2, "Z"));
-    }
-
-    @Test
-    public void should_be_invalid_when_file_with_bad_move_line() {
-        // Action
-        Validation<Seq<Error>, Lawn> errorsOrAutomower = parser.parse(BAD_MOVE_FILE_PATH);
-
-        // Then
-        assertTrue(errorsOrAutomower.isInvalid());
-        assertNotNull(errorsOrAutomower.getError());
-        assertEquals(errorsOrAutomower.getError().size(), 1);
-        assertEquals(errorsOrAutomower.getError().get(0), Error.InvalidInstruction.of(3, 'A'));
-    }
-
-    @Test
-    public void should_be_invalid_when_file_with_bad_lawn_line() {
-        // Action
-        Validation<Seq<Error>, Lawn> errorsOrAutomower = parser.parse(BAD_LAWN_FILE_PATH);
-
-        // Then
-        assertTrue(errorsOrAutomower.isInvalid());
-        assertNotNull(errorsOrAutomower.getError());
-        assertEquals(errorsOrAutomower.getError().size(), 1);
-        assertEquals(errorsOrAutomower.getError().get(0), InvalidLength.of(1, 3, 2));
-    }
-
-    private void assertSame(final Lawn lawn1, final Lawn lawn2) {
-        assertEquals(lawn1.getHeight(), lawn2.getHeight());
-        assertEquals(lawn1.getWidth(), lawn2.getWidth());
-        assertEquals(lawn1.getMowers().size(), lawn2.getMowers().size());
-
-        lawn1.getMowers()
-                .zipWithIndex()
-                .forEach(t -> {
-                    Mower mower = lawn2.getMowers().toList().get(t._2);
-                    assertEquals(mower.getInstructions(), t._1.getInstructions());
-                    assertEquals(mower.getPosition(), t._1.getPosition());
-                    assertEquals(mower.getOrientation(), t._1.getOrientation());
-                });
+        //Verify
+        verify(validator).validate(any());
     }
 
     private Lawn expectedLawn() {

@@ -1,14 +1,14 @@
 package com.bbc.automower.error;
 
-import com.bbc.automower.domain.Mower;
-import com.bbc.automower.domain.Position;
 import com.bbc.automower.enumeration.Instruction;
 import com.bbc.automower.enumeration.Orientation;
 import io.vavr.collection.List;
+import io.vavr.collection.Seq;
 import io.vavr.control.Validation;
 import lombok.Value;
 
 import static io.vavr.API.Invalid;
+import static io.vavr.API.Seq;
 import static java.lang.String.format;
 
 @FunctionalInterface
@@ -18,6 +18,10 @@ public interface Error {
 
     default <T> Validation<Error, T> asInvalid() {
         return Invalid(this);
+    }
+
+    default <T> Validation<Seq<Error>, T> asInvalidSeq() {
+        return Invalid(Seq(this));
     }
 
     @Value(staticConstructor = "of")

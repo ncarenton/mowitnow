@@ -17,6 +17,7 @@ Source code : [https://github.com/frecco75/mowitnow](https://github.com/frecco75
 * Tests: [JUnit](http://junit.org/), [Mockito](http://mockito.org/)
 * Behavior Driven Development: [JBehave](http://jbehave.org/)
 * Code generation: [Lombok](https://projectlombok.org)
+* UML: [PlantUML](http://plantuml.com)
 
 ## Running  ##
 

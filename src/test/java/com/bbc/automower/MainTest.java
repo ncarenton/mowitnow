@@ -1,9 +1,10 @@
 package com.bbc.automower;
 
-import com.bbc.automower.util.ParserTest;
 import org.junit.Before;
 import org.junit.Test;
 
+import static com.bbc.automower.Constants.BAD_LAWN_FILE_PATH;
+import static com.bbc.automower.Constants.GOOD_FILE_PATH;
 import static com.bbc.automower.Main.main;
 import static com.bbc.automower.TestAppender.clear;
 import static com.bbc.automower.TestAppender.messages;
@@ -32,13 +33,27 @@ public class MainTest {
     @Test
     public void should_execute_automower_program_with_file() {
         // Given
-        String[] args = new String[] {ParserTest.GOOD_FILE_PATH};
+        String[] args = new String[] {GOOD_FILE_PATH};
         
         // Action
         main(args);
         
         // Asserts
         assertThatMowersHavePrintedTheirPositions();
+    }
+
+    @Test
+    public void should_print_errors() {
+        // Given
+        String[] args = new String[] {BAD_LAWN_FILE_PATH};
+
+        // Action
+        main(args);
+
+        // Asserts
+        assertNotNull(messages);
+        assertEquals(messages.size(), 1);
+        assertEquals(messages.get(0), "Line 1: the line contains 3 elements instead of 2");
     }
 
     private void assertThatMowersHavePrintedTheirPositions() {

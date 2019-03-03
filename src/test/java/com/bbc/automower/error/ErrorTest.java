@@ -1,5 +1,6 @@
 package com.bbc.automower.error;
 
+import io.vavr.collection.Seq;
 import io.vavr.control.Validation;
 import org.junit.Test;
 
@@ -33,6 +34,20 @@ public class ErrorTest {
         //Assertions
         assertTrue(errorOrSomething.isInvalid());
         assertEquals(errorOrSomething.getError(), e);
+    }
+
+    @Test
+    public void should_be_invalid_seq() {
+        //Given
+        Error e = () -> "toto";
+
+        //Action
+        Validation<Seq<Error>, Object> errorOrSomething = e.asInvalidSeq();
+
+        //Assertions
+        assertTrue(errorOrSomething.isInvalid());
+        assertEquals(1, errorOrSomething.getError().size());
+        assertEquals(errorOrSomething.getError().get(0), e);
     }
 
 }
