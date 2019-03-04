@@ -14,7 +14,7 @@ Source code : [https://github.com/frecco75/mowitnow](https://github.com/frecco75
 
 ### Technologies ####
 * Functional programming: [Java 8](https://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html), [Vavr](http://www.vavr.io/)
-* Tests: [JUnit](http://junit.org/), [Mockito](http://mockito.org/)
+* Tests: [JUnit](http://junit.org/), [AssertJ](http://joel-costigliola.github.io/assertj/index.html), [Mockito](http://mockito.org/)
 * Behavior Driven Development: [JBehave](http://jbehave.org/)
 * Code generation: [Lombok](https://projectlombok.org)
 * UML: [PlantUML](http://plantuml.com)

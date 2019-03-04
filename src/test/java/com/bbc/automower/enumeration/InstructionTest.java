@@ -9,7 +9,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 import static com.bbc.automower.enumeration.Instruction.*;
 import static io.vavr.API.None;
 import static io.vavr.API.Some;
-import static org.junit.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.verify;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -20,10 +20,10 @@ public class InstructionTest {
 
     @Test
     public void should_get_by_label() {
-        assertEquals(getByLabel('F'), Some(MOVE_FORWARD));
-        assertEquals(getByLabel('R'), Some(TURN_RIGHT));
-        assertEquals(getByLabel('L'), Some(TURN_LEFT));
-        assertEquals(getByLabel('X'), None());
+        assertThat(getByLabel('F')).isEqualTo(Some(MOVE_FORWARD));
+        assertThat(getByLabel('R')).isEqualTo(Some(TURN_RIGHT));
+        assertThat(getByLabel('L')).isEqualTo(Some(TURN_LEFT));
+        assertThat(getByLabel('X')).isEqualTo(None());
     }
 
     @Test

@@ -12,9 +12,11 @@ import static java.util.Objects.nonNull;
 public class Main {
 
     private final static String DEFAULT_FILE_PATH = "META-INF/config/automower.txt";
+    private final static Parser<Lawn> LAWN_PARSER = new Parser<>(new LawnValidator());
+
 
     public static void main(final String[] args) {
-        new Parser(new LawnValidator())
+        LAWN_PARSER
                 .parse(getFilePath(args))
                 .map(Lawn::execute)
                 .swap()

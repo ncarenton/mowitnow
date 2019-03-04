@@ -17,7 +17,7 @@ import static com.bbc.automower.enumeration.Instruction.*;
 import static com.bbc.automower.enumeration.Orientation.EAST;
 import static com.bbc.automower.enumeration.Orientation.NORTH;
 import static io.vavr.API.*;
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -33,7 +33,7 @@ public class ParserTest {
     private Validator<Lawn> validator;
 
     @InjectMocks
-    private Parser parser;
+    private Parser<Lawn> parser;
 
 
     //-------------------------------------------------------------------------    
@@ -52,10 +52,11 @@ public class ParserTest {
         Validation<Seq<Error>, Lawn> errorsOrAutomower = parser.parse("src/main/resources/META-INF/config/dzedze");
 
         // Then
-        assertTrue(errorsOrAutomower.isInvalid());
-        assertNotNull(errorsOrAutomower.getError());
-        assertEquals(errorsOrAutomower.getError().size(), 1);
-        assertEquals(errorsOrAutomower.getError().get(0), FileNotFound.of("src/main/resources/META-INF/config/dzedze"));
+        assertThat(errorsOrAutomower.isInvalid()).isTrue();
+        assertThat(errorsOrAutomower.getError())
+                .isNotNull()
+                .hasSize(1)
+                .containsExactly(FileNotFound.of("src/main/resources/META-INF/config/dzedze"));
     }
 
     @Test
@@ -70,8 +71,8 @@ public class ParserTest {
         Validation<Seq<Error>, Lawn> errorsOrAutomower = parser.parse("src/main/resources/META-INF/config/" + GOOD_FILE_PATH);
 
         // Then
-        assertTrue(errorsOrAutomower.isValid());
-        assertSame(lawn, errorsOrAutomower.get());
+        assertThat(errorsOrAutomower.isValid()).isTrue();
+        assertThat(errorsOrAutomower.get()).isSameAs(lawn);
 
         //Verify
         verify(validator).validate(any());
@@ -89,8 +90,8 @@ public class ParserTest {
         Validation<Seq<Error>, Lawn> errorsOrAutomower = parser.parse(GOOD_FILE_PATH);
 
         // Then
-        assertTrue(errorsOrAutomower.isValid());
-        assertSame(lawn, errorsOrAutomower.get());
+        assertThat(errorsOrAutomower.isValid()).isTrue();
+        assertThat(errorsOrAutomower.get()).isSameAs(lawn);
 
         //Verify
         verify(validator).validate(any());
@@ -108,7 +109,7 @@ public class ParserTest {
         Validation<Seq<Error>, Lawn> errorsOrAutomower = parser.parse(GOOD_FILE_PATH);
 
         // Then
-        assertSame(invalid, errorsOrAutomower);
+        assertThat(errorsOrAutomower).isSameAs(invalid);
 
         //Verify
         verify(validator).validate(any());

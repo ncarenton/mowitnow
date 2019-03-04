@@ -2,8 +2,8 @@ package com.bbc.automower.domain;
 
 import org.junit.Test;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
+import static org.assertj.core.api.Assertions.assertThat;
+
 
 public class PositionTest {
     
@@ -50,8 +50,8 @@ public class PositionTest {
     //-------------------------------------------------------------------------
     
     private void assertThatPositionIsEqualToExpected(final Position position, int expectedX, int expectedY) {
-        assertFalse(position == this.position); // Not same references -> position is immuable
-        assertEquals(expectedX, position.getX());
-        assertEquals(expectedY, position.getY());
+        assertThat(position).isNotSameAs(this.position); // Not same references -> position is immuable
+        assertThat(position.getX()).isEqualTo(expectedX);
+        assertThat(position.getY()).isEqualTo(expectedY);
     }
 }

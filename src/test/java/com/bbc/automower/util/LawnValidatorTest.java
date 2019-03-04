@@ -3,6 +3,7 @@ package com.bbc.automower.util;
 import com.bbc.automower.domain.Lawn;
 import com.bbc.automower.domain.Mower;
 import com.bbc.automower.error.Error;
+import com.bbc.automower.error.Error.InvalidInstruction;
 import com.bbc.automower.error.Error.InvalidInt;
 import com.bbc.automower.error.Error.InvalidLength;
 import com.bbc.automower.error.Error.InvalidOrientation;
@@ -20,7 +21,7 @@ import static com.bbc.automower.enumeration.Orientation.NORTH;
 import static io.vavr.API.LinkedSet;
 import static io.vavr.API.List;
 import static org.apache.commons.io.IOUtils.LINE_SEPARATOR;
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class LawnValidatorTest {
 
@@ -46,8 +47,8 @@ public class LawnValidatorTest {
         Validation<Seq<Error>, Lawn> errorsOrAutomower = validator.validate(lines);
 
         // Then
-        assertTrue(errorsOrAutomower.isValid());
-        assertSame(lawn, errorsOrAutomower.get());
+        assertThat(errorsOrAutomower.isValid()).isTrue();
+        assertSame(errorsOrAutomower.get(), lawn);
     }
 
     @Test
@@ -59,10 +60,11 @@ public class LawnValidatorTest {
         Validation<Seq<Error>, Lawn> errorsOrAutomower = validator.validate(lines);
 
         // Then
-        assertTrue(errorsOrAutomower.isInvalid());
-        assertNotNull(errorsOrAutomower.getError());
-        assertEquals(errorsOrAutomower.getError().size(), 1);
-        assertEquals(errorsOrAutomower.getError().get(0), InvalidLength.of(2, 4, 3));
+        assertThat(errorsOrAutomower.isInvalid()).isTrue();
+        assertThat(errorsOrAutomower.getError())
+                .isNotNull()
+                .hasSize(1)
+                .containsExactly(InvalidLength.of(2, 4, 3));
     }
 
     @Test
@@ -74,12 +76,14 @@ public class LawnValidatorTest {
         Validation<Seq<Error>, Lawn> errorsOrAutomower = validator.validate(lines);
 
         // Then
-        assertTrue(errorsOrAutomower.isInvalid());
-        assertNotNull(errorsOrAutomower.getError());
-        assertEquals(errorsOrAutomower.getError().size(), 3);
-        assertEquals(errorsOrAutomower.getError().get(0), InvalidInt.of(2, "X"));
-        assertEquals(errorsOrAutomower.getError().get(1), InvalidInt.of(2, "Y"));
-        assertEquals(errorsOrAutomower.getError().get(2), InvalidOrientation.of(2, "Z"));
+        assertThat(errorsOrAutomower.isInvalid()).isTrue();
+        assertThat(errorsOrAutomower.getError())
+                .isNotNull()
+                .hasSize(3)
+                .containsExactly(
+                        InvalidInt.of(2, "X"),
+                        InvalidInt.of(2, "Y"),
+                        InvalidOrientation.of(2, "Z"));
     }
 
     @Test
@@ -91,10 +95,11 @@ public class LawnValidatorTest {
         Validation<Seq<Error>, Lawn> errorsOrAutomower = validator.validate(lines);
 
         // Then
-        assertTrue(errorsOrAutomower.isInvalid());
-        assertNotNull(errorsOrAutomower.getError());
-        assertEquals(errorsOrAutomower.getError().size(), 1);
-        assertEquals(errorsOrAutomower.getError().get(0), Error.InvalidInstruction.of(3, 'A'));
+        assertThat(errorsOrAutomower.isInvalid()).isTrue();
+        assertThat(errorsOrAutomower.getError())
+                .isNotNull()
+                .hasSize(1)
+                .containsExactly(InvalidInstruction.of(3, 'A'));
     }
 
     @Test
@@ -106,24 +111,25 @@ public class LawnValidatorTest {
         Validation<Seq<Error>, Lawn> errorsOrAutomower = validator.validate(lines);
 
         // Then
-        assertTrue(errorsOrAutomower.isInvalid());
-        assertNotNull(errorsOrAutomower.getError());
-        assertEquals(errorsOrAutomower.getError().size(), 1);
-        assertEquals(errorsOrAutomower.getError().get(0), InvalidLength.of(1, 3, 2));
+        assertThat(errorsOrAutomower.isInvalid()).isTrue();
+        assertThat(errorsOrAutomower.getError())
+                .isNotNull()
+                .hasSize(1)
+                .containsExactly(InvalidLength.of(1, 3, 2));
     }
 
     private void assertSame(final Lawn lawn1, final Lawn lawn2) {
-        assertEquals(lawn1.getHeight(), lawn2.getHeight());
-        assertEquals(lawn1.getWidth(), lawn2.getWidth());
-        assertEquals(lawn1.getMowers().size(), lawn2.getMowers().size());
+        assertThat(lawn1.getHeight()).isEqualTo(lawn2.getHeight());
+        assertThat(lawn1.getWidth()).isEqualTo(lawn2.getWidth());
+        assertThat(lawn1.getMowers().size()).isEqualTo(lawn2.getMowers().size());
 
         lawn1.getMowers()
                 .zipWithIndex()
                 .forEach(t -> {
                     Mower mower = lawn2.getMowers().toList().get(t._2);
-                    assertEquals(mower.getInstructions(), t._1.getInstructions());
-                    assertEquals(mower.getPosition(), t._1.getPosition());
-                    assertEquals(mower.getOrientation(), t._1.getOrientation());
+                    assertThat(mower.getInstructions()).isEqualTo(t._1.getInstructions());
+                    assertThat(mower.getPosition()).isEqualTo(t._1.getPosition());
+                    assertThat(mower.getOrientation()).isEqualTo(t._1.getOrientation());
                 });
     }
 

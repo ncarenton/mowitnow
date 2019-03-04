@@ -19,7 +19,8 @@ import static io.vavr.collection.HashSet.ofAll;
 import static io.vavr.control.Option.none;
 import static java.lang.Integer.parseInt;
 import static java.util.function.Function.identity;
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.fail;
 
 public class AutoMowerSteps {
 
@@ -57,7 +58,7 @@ public class AutoMowerSteps {
     }
 
     @When("the mowers execute their instructions")
-    public void mowerExecutesInstructions() {
+    public void mowersExecuteInstructions() {
         lawn = lawn.initialize(ofAll(mowers))
                 .execute();
     }
@@ -76,10 +77,12 @@ public class AutoMowerSteps {
                     }
 
                     maybeMower.forEach(mower2 -> {
-                        assertNotNull(mower2.getPosition());
-                        assertEquals(x, mower2.getPosition().getX());
-                        assertEquals(y, mower2.getPosition().getY());
-                        assertEquals(Orientation.getByLabel(orientationLabel).get(), mower2.getOrientation());
+                        assertThat(mower2.getPosition()).isNotNull();
+                        assertThat(x).isEqualTo(mower2.getPosition().getX());
+                        assertThat(y).isEqualTo(mower2.getPosition().getY());
+                        assertThat(Orientation.getByLabel(orientationLabel))
+                                .isNotEmpty()
+                                .containsExactly(mower2.getOrientation());
                     });
                 });
     }

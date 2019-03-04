@@ -8,7 +8,7 @@ import static com.bbc.automower.enumeration.Instruction.TURN_LEFT;
 import static com.bbc.automower.enumeration.Orientation.NORTH;
 import static com.bbc.automower.enumeration.Orientation.SOUTH;
 import static io.vavr.API.*;
-import static org.junit.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class LawnTest {
 
@@ -34,9 +34,9 @@ public class LawnTest {
         Lawn newLawn = lawn.initialize(mowers);
 
         //Asserts
-        assertEquals(newLawn.getMowers(), mowers);
-        assertEquals(newLawn.getWidth(), lawn.getWidth());
-        assertEquals(newLawn.getHeight(), lawn.getHeight());
+        assertThat(newLawn.getMowers()).isEqualTo(mowers);
+        assertThat(newLawn.getWidth()).isEqualTo(lawn.getWidth());
+        assertThat(newLawn.getHeight()).isEqualTo(lawn.getHeight());
     }
 
     @Test
@@ -52,12 +52,12 @@ public class LawnTest {
         Lawn newLawn = lawn.execute();
 
         //Assert
-        assertEquals(newLawn.getWidth(), lawn.getWidth());
-        assertEquals(newLawn.getHeight(), lawn.getHeight());
+        assertThat(newLawn.getWidth()).isEqualTo(lawn.getWidth());
+        assertThat(newLawn.getHeight()).isEqualTo(lawn.getHeight());
 
-        assertEquals(newLawn.getMowers().size(), 1);
-        assertEquals(newLawn.getMowers().head().getOrientation(), NORTH);
-        assertEquals(newLawn.getMowers().head().getPosition(), Position.of(1, 3));
+        assertThat(newLawn.getMowers()).hasSize(1);
+        assertThat(newLawn.getMowers().head().getOrientation()).isSameAs(NORTH);
+        assertThat(newLawn.getMowers().head().getPosition()).isEqualTo(Position.of(1, 3));
     }
 
     @Test
@@ -71,7 +71,7 @@ public class LawnTest {
         Lawn newLawn = lawn.execute();
 
         //Asserts
-        assertEquals(newLawn, lawn);
+        assertThat(newLawn).isEqualTo(lawn);
     }
 
     @Test
@@ -87,7 +87,7 @@ public class LawnTest {
         Lawn newLawn = lawn.execute();
 
         //Asserts
-        assertEquals(newLawn, lawn);
+        assertThat(newLawn).isEqualTo(lawn);
     }
 
 }

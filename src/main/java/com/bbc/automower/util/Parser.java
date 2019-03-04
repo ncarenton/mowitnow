@@ -1,6 +1,5 @@
 package com.bbc.automower.util;
 
-import com.bbc.automower.domain.Lawn;
 import com.bbc.automower.error.Error;
 import io.vavr.API;
 import io.vavr.collection.List;
@@ -24,11 +23,11 @@ import static org.apache.commons.io.IOUtils.LINE_SEPARATOR;
 
 @Slf4j
 @AllArgsConstructor
-public class Parser {
+public class Parser<T> {
 
-    private final Validator<Lawn> validator;
+    private final Validator<T> validator;
 
-    public Validation<Seq<Error>, Lawn> parse(@NonNull final String filePath) {
+    public Validation<Seq<Error>, T> parse(@NonNull final String filePath) {
         log.debug("Parsing file {}......", filePath);
         return readFile(filePath)
                 .mapError(API::Seq)
