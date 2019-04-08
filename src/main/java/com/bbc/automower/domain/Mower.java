@@ -13,6 +13,7 @@ import java.util.UUID;
 
 import static com.bbc.automower.enumeration.Orientation.*;
 import static io.vavr.API.*;
+import static java.lang.String.format;
 import static java.util.UUID.randomUUID;
 
 @Value
@@ -77,12 +78,18 @@ public class Mower implements Movable<Mower> {
     }
 
     public Mower removeInstruction() {
-        return withInstructions(instructions.pop());
+        return instructions.popOption()
+                .map(this::withInstructions)
+                .getOrElse(this);
     }
 
     public Mower printPosition() {
         log.info("{} {} {}", position.getX(), position.getY(), orientation.getLabel());
         return this;
+    }
+
+    public String getLocation() {
+        return format("(%s, %s, %s)", position.getX(), position.getY(), orientation.getLabel());
     }
 
 }

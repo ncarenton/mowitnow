@@ -1,6 +1,7 @@
 package com.bbc.automower.domain;
 
 import io.vavr.Tuple2;
+import io.vavr.collection.List;
 import io.vavr.collection.Set;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -10,8 +11,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.util.function.Predicate;
 
-import static io.vavr.API.LinkedSet;
-import static io.vavr.API.Tuple;
+import static io.vavr.API.*;
 
 
 @Value
@@ -25,6 +25,9 @@ public class Lawn {
     @Wither(AccessLevel.PRIVATE)
     Set<Mower> mowers;
 
+    @Wither(AccessLevel.PRIVATE)
+    List<MowerEvent> history;
+
     public static Lawn of(final int width, final int height) {
         return new Lawn(width, height);
     }
@@ -37,6 +40,7 @@ public class Lawn {
         this.width = width;
         this.height = height;
         mowers = LinkedSet();
+        history = List();
     }
 
     public Lawn initialize(final Set<Mower> mowers) {
@@ -55,7 +59,7 @@ public class Lawn {
     private Tuple2<Lawn, Mower> executeInstructions(final Mower mower) {
         return mower.executeInstruction()
                 .map(m -> move(mower, m))
-                .peek(lm -> log.debug("Mower {} at position {}", lm._2.getUuid(), lm._2.getPosition()))
+                .peek(lm -> log.debug("Mower {} at position {}", lm._2.getUuid(), lm._2.getLocation()))
                 .map(lm -> lm._1.executeInstructions(lm._2))
                 .getOrElse(() -> Tuple(this, mower));
     }
@@ -66,9 +70,10 @@ public class Lawn {
                 source.removeInstruction();
 
         return Tuple(
-                withMowers(mowers
-                        .remove(source)
-                        .add(mower)),
+                withHistory(history.append(MowerEvent.of(source, mower)))
+                        .withMowers(mowers
+                            .remove(source)
+                            .add(mower)),
                 mower);
     }
 

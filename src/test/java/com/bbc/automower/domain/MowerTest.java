@@ -121,6 +121,18 @@ public class MowerTest {
                 .containsExactly(TURN_RIGHT);
     }
 
+    @Test
+    public void should_get_location() {
+        //Given
+        Mower mower = Mower.of(1, 2, NORTH);
+
+        //Action
+        String location = mower.getLocation();
+
+        //Asserts
+        assertThat(location).isEqualTo("(1, 2, N)");
+    }
+
     // Private methods
     //-------------------------------------------------------------------------
 

@@ -1,6 +1,7 @@
 package com.bbc.automower.domain;
 
 import io.vavr.collection.Set;
+import io.vavr.control.Option;
 import org.junit.Test;
 
 import static com.bbc.automower.enumeration.Instruction.MOVE_FORWARD;
@@ -12,12 +13,12 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class LawnTest {
 
-    @Test(expected=IllegalArgumentException.class)
+    @Test(expected = IllegalArgumentException.class)
     public void should_throw_illegalargumentexception_when_x_is_negative() {
         Lawn.of(-1, 1);
     }
 
-    @Test(expected=IllegalArgumentException.class)
+    @Test(expected = IllegalArgumentException.class)
     public void should_throw_illegalargumentexception_when_y_is_negative() {
         Lawn.of(1, -1);
     }
@@ -71,7 +72,7 @@ public class LawnTest {
         Lawn newLawn = lawn.execute();
 
         //Asserts
-        assertThat(newLawn).isEqualTo(lawn);
+        assertSameLawn(newLawn, lawn);
     }
 
     @Test
@@ -87,7 +88,28 @@ public class LawnTest {
         Lawn newLawn = lawn.execute();
 
         //Asserts
-        assertThat(newLawn).isEqualTo(lawn);
+        assertSameLawn(newLawn, lawn);
+    }
+
+    private void assertSameLawn(final Lawn l, final Lawn o) {
+        assertThat(l.getHeight()).isEqualTo(o.getHeight());
+        assertThat(l.getWidth()).isEqualTo(o.getWidth());
+        assertThat(l.getMowers()).hasSize(o.getMowers().size());
+
+        l.getMowers().forEach(mower ->
+                {
+                    Option<Mower> maybeMower = o.getMowers()
+                            .find(mower2 -> mower.getUuid().equals(mower2.getUuid()));
+
+                    assertThat(maybeMower).isNotEmpty();
+                    maybeMower
+                            .forEach(mower2 -> {
+                                        assertThat(mower.getPosition()).isEqualTo(mower2.getPosition());
+                                        assertThat(mower.getLocation()).isEqualTo(mower2.getLocation());
+                                    }
+                            );
+                }
+        );
     }
 
 }
